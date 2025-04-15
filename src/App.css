@@ -1,0 +1,371 @@
+/* Add custom styles for the application */
+
+/* App layout styles */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  background-color: #f4f4f4 !important; /* Light gray topbar */
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+}
+
+.header-navigation {
+  display: flex !important;
+}
+
+.header-menu-item {
+  color: #161616 !important;
+  cursor: pointer !important;
+  font-weight: 400 !important;
+  padding: 0 1rem !important;
+}
+
+.header-menu-item:hover {
+  background-color: #e0e0e0 !important;
+}
+
+.header-action {
+  color: #161616 !important;
+}
+
+.content-container {
+  padding-top: 48px; /* Ensure content doesn't overlap with fixed header */
+  width: 100%;
+  padding-bottom: 2rem;
+}
+
+.centered-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Football pitch styles */
+.football-pitch-container {
+  display: flex;
+  margin: 20px 0;
+}
+
+.football-pitch {
+  position: relative;
+  width: 600px;
+  height: 400px;
+  background-color: #4caf50;
+  border: 2px solid white;
+  margin-right: 20px;
+}
+
+.field-markings {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.center-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  border: 2px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.center-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  background-color: white;
+}
+
+.penalty-area {
+  position: absolute;
+  width: 150px;
+  height: 80px;
+  border: 2px solid white;
+}
+
+.penalty-area.top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.penalty-area.bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.goal-area {
+  position: absolute;
+  width: 60px;
+  height: 30px;
+  border: 2px solid white;
+}
+
+.goal-area.top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.goal-area.bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.position-drop-zone {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.position-drop-zone.over {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.position-drop-zone.can-drop {
+  border: 2px dashed white;
+}
+
+.position-marker {
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.assigned-players {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.assigned-player {
+  background-color: white;
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin: 2px 0;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.player-number {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.player-list {
+  flex: 1;
+  padding: 10px;
+  background-color: #f4f4f4;
+  border-radius: 4px;
+}
+
+.unassigned-players {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.player-item {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: move;
+  display: flex;
+  align-items: center;
+}
+
+.player-item.dragging {
+  opacity: 0.5;
+}
+
+.position-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+/* Form styles */
+.form-row {
+  margin-bottom: 20px;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.score-separator {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.event-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.event-input {
+  min-width: 120px;
+}
+
+.event-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* Section styles */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.logo-preview {
+  margin: 10px 0;
+}
+
+.public-url {
+  margin-top: 20px;
+}
+
+.url-display {
+  display: flex;
+  align-items: center;
+}
+
+/* Table styles */
+.selected-row {
+  background-color: #e0f2ff;
+}
+
+/* Team header */
+.team-header {
+  margin-bottom: 20px;
+}
+
+.team-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.match-filter {
+  margin-top: 20px;
+}
+
+/* Login page */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+}
+
+.login-container {
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-note {
+  font-size: 12px;
+  color: #666;
+  margin-top: 20px;
+}
+
+/* Front page */
+.front-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+}
+
+.search-container {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.search-box {
+  margin: 30px 0;
+}
+
+.search-results {
+  margin-top: 20px;
+  text-align: left;
+}
+
+/* Error message */
+.error-message {
+  color: #da1e28;
+  margin-bottom: 10px;
+}
+
+.file-upload-container {
+  margin-bottom: 1rem;
+}
+
+.file-upload-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.file-upload-description {
+  font-size: 0.875rem;
+  color: #525252;
+  margin-bottom: 0.5rem;
+}
+
+.file-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.file-upload-button-container {
+  margin-top: 0.5rem;
+}
