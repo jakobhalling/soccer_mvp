@@ -12,34 +12,172 @@
   position: fixed;
   width: 100%;
   z-index: 1000;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
 }
 
 .header-navigation {
   display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .header-menu-item {
   color: #161616 !important;
+  background: none !important;
   cursor: pointer !important;
-  font-weight: 400 !important;
-  padding: 0 1rem !important;
+  font-weight: 500 !important;
+  padding: 0 1.2rem !important;
+  font-size: 1rem !important;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+  outline: none;
+}
+
+.header-menu-item:focus {
+  background-color: #e0e0e0 !important;
+  color: #0f62fe !important;
 }
 
 .header-menu-item:hover {
   background-color: #e0e0e0 !important;
+  color: #0f62fe !important;
 }
 
 .header-action {
   color: #161616 !important;
+  background: none !important;
+  border-radius: 50%;
+  margin-left: 0.5rem;
+  font-size: 1.2rem !important;
+  transition: background 0.2s, color 0.2s;
+}
+
+.header-action:focus, .header-action:hover {
+  background-color: #e0e0e0 !important;
+  color: #0f62fe !important;
+}
+
+/* Ensure Carbon icons in the header are always visible */
+.app-header svg {
+  fill: #161616 !important;
+}
+.header-action svg {
+  fill: #161616 !important;
+  transition: fill 0.2s;
+}
+.header-action:focus svg, .header-action:hover svg {
+  fill: #0f62fe !important;
 }
 
 .content-container {
   padding-top: 48px; /* Ensure content doesn't overlap with fixed header */
   width: 100%;
-  padding-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .centered-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 32px 24px 24px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+
+.header-action {
+  background: none !important;
+  color: var(--text-main) !important;
+  border-radius: 50%;
+  margin-left: 0.5rem;
+  font-size: 1.2rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.header-action:focus, .header-action:hover {
+  background-color: #282c34 !important;
+  color: var(--accent) !important;
+}
+
+/* Remove custom hover/focus colors and icon fill to restore Carbon's default */
+
+
+.content-container {
+  padding-top: 48px; /* Ensure content doesn't overlap with fixed header */
+  background: var(--background-content);
+  min-height: 100vh;
+}
+
+.centered-content {
+  background: var(--background-card);
+  color: var(--text-main);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 900px;
+}
+
+/* General text color for all content */
+body, html {
+  background: var(--background-main);
+  color: var(--text-main);
+}
+
+/* Inputs and buttons for dark mode */
+input, textarea, select {
+  background: #23272f;
+  color: var(--text-main);
+  border: 1px solid #444950;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+button, .bx--btn {
+  background: #23272f;
+  color: var(--text-main);
+  border: 1px solid #444950;
+}
+button:hover, .bx--btn:hover {
+  background: #282c34;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Carbon Data Table dark mode */
+.bx--data-table {
+  background: #181b22;
+  color: var(--text-main);
+}
+.bx--data-table th, .bx--data-table td {
+  background: #23272f;
+  color: var(--text-main);
+}
+
+/* Card style for dark mode */
+.bx--tile, .card, .panel {
+  background: var(--background-card);
+  color: var(--text-main);
+  border: 1px solid #23272f;
+}
+
+/* Misc */
+::-webkit-scrollbar {
+  background: #23272f;
+  width: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: #393e46;
+  border-radius: 6px;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;

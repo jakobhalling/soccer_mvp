@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Header, HeaderName, HeaderNavigation, HeaderMenuItem, HeaderGlobalBar, HeaderGlobalAction } from '@carbon/react';
 import { User } from '@carbon/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useTeam } from '../../context';
 
 interface AppLayoutProps {
   // Add props if needed
@@ -10,20 +11,24 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
-  // Dummy authentication state for prototype
+  const { team } = useTeam();
+  // Use the correct key for authentication status
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(
-    localStorage.getItem('isAuthenticated') === 'true'
+    localStorage.getItem('soccer_mvp_auth') === 'true'
   );
 
   React.useEffect(() => {
     // Check authentication status from localStorage
-    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+    const authStatus = localStorage.getItem('soccer_mvp_auth') === 'true';
     setIsAuthenticated(authStatus);
   }, []);
 
   const handleLoginClick = () => {
     navigate('/login');
   };
+
+  // Helper: Scoreboard URL (team-specific)
+  const scoreboardUrl = team ? `/team/${team.id}` : '/';
 
   return (
     <div className="app-container">
@@ -33,7 +38,10 @@ const AppLayout: React.FC<AppLayoutProps> = () => {
         </HeaderName>
         
         {isAuthenticated && (
-          <HeaderNavigation aria-label="Admin Navigation" className="header-navigation">
+          <HeaderNavigation aria-label="Main Navigation" className="header-navigation">
+            <HeaderMenuItem onClick={() => navigate(scoreboardUrl)} className="header-menu-item">
+              Scoreboard
+            </HeaderMenuItem>
             <HeaderMenuItem onClick={() => navigate('/admin')} className="header-menu-item">
               Administration
             </HeaderMenuItem>
