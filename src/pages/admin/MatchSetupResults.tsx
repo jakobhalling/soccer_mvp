@@ -211,10 +211,9 @@ const MatchSetupResults: React.FC = () => {
   };
   
   return (
-    <div className="match-setup-results-page">
+    <div>
       <Tile>
         <h2>Match Setup and Results</h2>
-        
         {/* Match List */}
         <DataTable rows={matches} headers={[
           { header: 'Date', key: 'date' },
@@ -227,17 +226,20 @@ const MatchSetupResults: React.FC = () => {
             <Table {...getTableProps()}>
               <TableHead>
                 <TableRow>
-                  {headers.map((header) => (
-                    <TableHeader {...getHeaderProps({ header })}>
-                      {header.header}
-                    </TableHeader>
-                  ))}
+                  {headers.map((header) => {
+                    const headerProps = getHeaderProps({ header });
+                    const { key, ...rest } = headerProps;
+                    return (
+                      <TableHeader key={key} {...rest}>
+                        {header.header}
+                      </TableHeader>
+                    );
+                  })}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {rows.map((row) => {
                   const match = matches.find(m => m.id === row.id);
-                  
                   return (
                     <TableRow 
                       key={row.id}
@@ -257,8 +259,6 @@ const MatchSetupResults: React.FC = () => {
           )}
         </DataTable>
       </Tile>
-      
-      {/* Match Modal */}
       <Modal
         open={isModalOpen}
         modalHeading={`Match: ${selectedMatch?.opponent} (${formatDate(selectedMatch?.date)})`}
@@ -267,29 +267,30 @@ const MatchSetupResults: React.FC = () => {
         size="lg"
         passiveModal
       >
-        {errors.length > 0 && (
-          <InlineNotification
-            kind="error"
-            title="Error"
-            subtitle={errors.join(', ')}
-            hideCloseButton
-          />
-        )}
-        
-        {success && (
-          <InlineNotification
-            kind="success"
-            title="Success"
-            subtitle={success}
-            hideCloseButton
-          />
-        )}
-        
-        <Tabs selected={activeTab === 'setup' ? 0 : 1} onChange={({ selectedIndex }) => handleTabChange(selectedIndex === 0 ? 'setup' : 'results')}>
-          <Tab id="setup" label="Match Setup">
+        <div>
+          {errors.length > 0 && (
+            <InlineNotification
+              kind="error"
+              title="Error"
+              subtitle={errors.join(', ')}
+              hideCloseButton
+            />
+          )}
+          {success && (
+            <InlineNotification
+              kind="success"
+              title="Success"
+              subtitle={success}
+              hideCloseButton
+            />
+          )}
+          <Tabs defaultSelectedIndex={activeTab === 'setup' ? 0 : 1} onChange={({ selectedIndex }) => handleTabChange(selectedIndex === 0 ? 'setup' : 'results')}>
+            <Tab id="setup" title="Match Setup">Player Positions</Tab>
+            <Tab id="results" title="Match Results">Match Results</Tab>
+          </Tabs>
+          {activeTab === 'setup' && (
             <div className="match-setup-tab">
               <h3>Player Positions</h3>
-              
               {selectedMatch && (
                 <FootballPitch
                   formation={selectedMatch.formation || Formation.F_442}
@@ -299,12 +300,10 @@ const MatchSetupResults: React.FC = () => {
                 />
               )}
             </div>
-          </Tab>
-          
-          <Tab id="results" label="Match Results">
+          )}
+          {activeTab === 'results' && (
             <div className="match-results-tab">
               <h3>Match Score</h3>
-              
               <div className="score-inputs">
                 <Form>
                   <div className="form-row score-row">
@@ -312,39 +311,33 @@ const MatchSetupResults: React.FC = () => {
                       id="home-score"
                       label={`${selectedMatch?.isHomeMatch ? 'Your Team' : selectedMatch?.opponent}`}
                       value={homeScore}
-                      onChange={(e, { value }) => setHomeScore(value)}
+                      onChange={(e, { value }) => setHomeScore(Number(value))}
                       min={0}
                       max={20}
                     />
-                    
                     <span className="score-separator">-</span>
-                    
                     <NumberInput
                       id="away-score"
                       label={`${selectedMatch?.isHomeMatch ? selectedMatch?.opponent : 'Your Team'}`}
                       value={awayScore}
-                      onChange={(e, { value }) => setAwayScore(value)}
+                      onChange={(e, { value }) => setAwayScore(Number(value))}
                       min={0}
                       max={20}
                     />
                   </div>
-                  
-                  <div className="form-actions">
-                    <Button onClick={handleMatchUpdate}>
-                      Update Score
-                    </Button>
-                    
-                    {!isMatchCompleted && (
-                      <Button kind="primary" onClick={handleMatchComplete}>
-                        Mark as Completed
-                      </Button>
-                    )}
-                  </div>
                 </Form>
+                <div className="form-actions">
+                  <Button onClick={handleMatchUpdate}>
+                    Update Score
+                  </Button>
+                  {!isMatchCompleted && (
+                    <Button kind="primary" onClick={handleMatchComplete}>
+                      Mark as Completed
+                    </Button>
+                  )}
+                </div>
               </div>
-              
               <h3>Player Events</h3>
-              
               {/* Player Events Table */}
               <DataTable rows={matchPlayerPositions.map(pos => {
                 const player = players.find(p => p.id === pos.playerId);
@@ -362,11 +355,15 @@ const MatchSetupResults: React.FC = () => {
                   <Table {...getTableProps()}>
                     <TableHead>
                       <TableRow>
-                        {headers.map((header) => (
-                          <TableHeader {...getHeaderProps({ header })}>
-                            {header.header}
-                          </TableHeader>
-                        ))}
+                        {headers.map((header, index) => {
+                          const headerProps = getHeaderProps({ header });
+                          const { key, ...rest } = headerProps;
+                          return (
+                            <TableHeader key={index} {...rest}>
+                              {header.header}
+                            </TableHeader>
+                          );
+                        })}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -374,7 +371,6 @@ const MatchSetupResults: React.FC = () => {
                         const playerPosition = matchPlayerPositions.find(pos => pos.playerId === row.id);
                         const position = playerPosition?.position;
                         const events = position ? getEventsForPosition(position) : [];
-                        
                         return (
                           <TableRow key={row.id}>
                             <TableCell>{row.cells[0].value}</TableCell>
@@ -387,7 +383,7 @@ const MatchSetupResults: React.FC = () => {
                                       id={`event-${row.id}-${eventType}`}
                                       label={eventType}
                                       value={getPlayerEventCount(row.id, eventType)}
-                                      onChange={(e, { value }) => handlePlayerEventUpdate(row.id, eventType, value)}
+                                      onChange={(e, { value }) => handlePlayerEventUpdate(row.id, eventType, Number(value))}
                                       min={0}
                                       max={10}
                                       size="sm"
@@ -404,11 +400,11 @@ const MatchSetupResults: React.FC = () => {
                 )}
               </DataTable>
             </div>
-          </Tab>
-        </Tabs>
+          )}
+        </div>
       </Modal>
     </div>
   );
-};
+}
 
 export default MatchSetupResults;

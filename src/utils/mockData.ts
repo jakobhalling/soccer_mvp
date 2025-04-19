@@ -32,16 +32,22 @@ export const generateMockPlayers = (teamId: string, count: number = 20): Player[
   const now = new Date();
   const players: Player[] = [];
   
-  for (let i = 1; i <= count; i++) {
-    players.push({
-      id: uuidv4(),
-      teamId,
-      name: `Player ${i}`,
-      number: i,
-      createdAt: now,
-      updatedAt: now
-    });
-  }
+  const sampleNames = [
+  'Oliver Smith', 'Noah Johnson', 'Liam Williams', 'Mason Brown', 'Elijah Jones',
+  'James Garcia', 'Benjamin Miller', 'Lucas Davis', 'Henry Rodriguez', 'Alexander Martinez',
+  'William Hernandez', 'Jack Lopez', 'Daniel Gonzalez', 'Matthew Wilson', 'Sebastian Anderson',
+  'Jacob Thomas', 'Logan Taylor', 'Aiden Moore', 'Jackson Martin', 'Samuel Lee'
+];
+for (let i = 1; i <= count; i++) {
+  players.push({
+    id: uuidv4(),
+    teamId,
+    name: sampleNames[(i - 1) % sampleNames.length],
+    number: i,
+    createdAt: now,
+    updatedAt: now
+  });
+}
   
   return players;
 };

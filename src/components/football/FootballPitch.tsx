@@ -4,7 +4,7 @@ import {
   Button,
   Tag
 } from '@carbon/react';
-import { DragSource, DropTarget, useDrag, useDrop } from 'react-dnd';
+import { useDrag, useDrop } from 'react-dnd';
 import { Player, Position, PlayerPosition, Formation } from '../../types';
 
 // Define formation positions
@@ -128,28 +128,48 @@ const formationPositions = {
 // Player item for drag and drop
 const PlayerItem: React.FC<{
   player: Player;
+  assigned: boolean;
   onDrag: (playerId: string) => void;
-}> = ({ player, onDrag }) => {
+}> = ({ player, assigned, onDrag }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'PLAYER',
-    item: { id: player.id },
+    canDrag: !assigned,
+    item: () => {
+      if (!assigned) onDrag(player.id);
+      return { id: player.id };
+    },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
-    }),
-    begin: () => {
-      onDrag(player.id);
-      return { id: player.id };
-    }
-  }));
-  
+    })
+  }), [assigned]);
+
   return (
     <div
-      ref={drag}
-      className={`player-item ${isDragging ? 'dragging' : ''}`}
-      style={{ opacity: isDragging ? 0.5 : 1 }}
+      ref={!assigned ? drag : undefined}
+      className={`player-item${isDragging ? ' dragging' : ''}${assigned ? ' assigned' : ''}`}
+      style={{
+        opacity: assigned ? 0.4 : isDragging ? 0.5 : 1,
+        background: assigned ? '#e0e0e0' : '#fff',
+        cursor: assigned ? 'not-allowed' : 'grab',
+        pointerEvents: assigned ? 'none' : 'auto',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+      title={assigned ? 'Already assigned to a position' : 'Drag to assign'}
     >
-      <span className="player-number">{player.number}</span>
+      <span className="player-number" style={{ marginRight: 8 }}>{player.number}</span>
       <span className="player-name">{player.name}</span>
+      {assigned && (
+        <span style={{
+          marginLeft: 8,
+          color: '#888',
+          fontSize: 12,
+          fontStyle: 'italic',
+        }}>
+          (assigned)
+        </span>
+      )}
     </div>
   );
 };
@@ -164,7 +184,8 @@ const PositionDropZone: React.FC<{
 }> = ({ position, x, y, assignedPlayers, onDrop }) => {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: 'PLAYER',
-    drop: () => {
+    drop: (item, monitor) => {
+      console.info('DROP event:', { item, position });
       onDrop(position);
       return { position };
     },
@@ -172,40 +193,80 @@ const PositionDropZone: React.FC<{
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop()
     }),
-    canDrop: () => {
-      // Only allow one goalkeeper
-      if (position === Position.GOALKEEPER && assignedPlayers.length > 0) {
-        return false;
-      }
-      return true;
+    canDrop: (item, monitor) => {
+      const allowed = !(position === Position.GOALKEEPER && assignedPlayers.length > 0);
+      console.info('canDrop called', { item, position, allowed });
+      return allowed;
     }
   }));
-  
+
   return (
     <div
       ref={drop}
       className={`position-drop-zone ${position.toLowerCase()} ${isOver ? 'over' : ''} ${canDrop ? 'can-drop' : ''}`}
       style={{
         left: `${x}%`,
-        top: `${y}%`
+        top: `${y}%`,
+        background: canDrop ? 'rgba(0,255,0,0.1)' : undefined,
+        border: canDrop ? '2px solid #0f0' : undefined,
+        zIndex: isOver ? 2 : 1,
       }}
     >
-      <div className="position-marker">
-        {position === Position.GOALKEEPER ? 'GK' : 
-         position === Position.DEFENDER ? 'DEF' : 
-         position === Position.MIDFIELDER ? 'MID' : 'ATT'}
+      <div className="position-marker" style={{
+  width: 40,
+  height: 40,
+  borderRadius: '50%',
+  background: assignedPlayers.length > 0 ? '#1976d2' : 'rgba(255,255,255,0.8)',
+  color: assignedPlayers.length > 0 ? '#fff' : '#333',
+  border: assignedPlayers.length > 0 ? '3px solid #1565c0' : '2px dashed #bbb',
+  boxShadow: assignedPlayers.length > 0 ? '0 0 12px 2px #1976d2' : 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontWeight: 700,
+  fontSize: 16,
+  margin: '0 auto',
+  position: 'relative',
+  zIndex: 3
+}}>
+  {assignedPlayers.length > 0
+    ? assignedPlayers.map(player => (
+      <span key={player.id} style={{ display: 'block', fontSize: 14, fontWeight: 700 }}>
+        {player.number}
+      </span>
+    ))
+    : (position === Position.GOALKEEPER ? 'GK' :
+       position === Position.DEFENDER ? 'DEF' :
+       position === Position.MIDFIELDER ? 'MID' : 'ATT')}
+</div>
+{assignedPlayers.length > 0 && (
+  <div className="assigned-players" style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center', marginTop: 2 }}>
+    {assignedPlayers.map(player => (
+      <div
+        key={player.id}
+        className="assigned-player-badge"
+        style={{
+          background: '#1976d2',
+          color: '#fff',
+          border: '2px solid #1565c0',
+          borderRadius: 16,
+          padding: '2px 10px',
+          fontWeight: 600,
+          boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
+          minWidth: 60,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 14,
+        }}
+        title={player.name}
+      >
+        <span style={{ marginRight: 6, fontWeight: 700 }}>{player.number}</span>
+        <span>{player.name}</span>
       </div>
-      
-      {assignedPlayers.length > 0 && (
-        <div className="assigned-players">
-          {assignedPlayers.map(player => (
-            <div key={player.id} className="assigned-player">
-              <span className="player-number">{player.number}</span>
-              <span className="player-name">{player.name}</span>
-            </div>
-          ))}
-        </div>
-      )}
+    ))}
+  </div>
+)}
     </div>
   );
 };
@@ -251,6 +312,7 @@ const FootballPitch: React.FC<FootballPitchProps> = ({
   // Handle position drop
   const handlePositionDrop = (position: Position) => {
     if (draggedPlayerId) {
+      console.info(`Player dropped:`, { playerId: draggedPlayerId, position });
       onPlayerAssign(draggedPlayerId, position);
       setDraggedPlayerId(null);
     }
@@ -291,26 +353,34 @@ const FootballPitch: React.FC<FootballPitchProps> = ({
       </div>
       
       <div className="player-list">
-        <h4>Available Players</h4>
-        <div className="unassigned-players">
-          {getUnassignedPlayers().map(player => (
-            <PlayerItem
-              key={player.id}
-              player={player}
-              onDrag={handlePlayerDrag}
-            />
-          ))}
-        </div>
-        
-        <h4>Assigned Players</h4>
-        <div className="position-summary">
-          {Object.values(Position).filter(p => p !== Position.ALL).map(position => (
-            <div key={position} className="position-group">
-              <Tag type="blue">{position}: {getAssignedPlayers(position).length}</Tag>
-            </div>
-          ))}
-        </div>
-      </div>
+  <h4>Available Players</h4>
+  <div className="unassigned-players">
+    {players.map(player => {
+  // Check if player is assigned
+  const assigned = playerPositions.some(pp => pp.playerId === player.id);
+  return (
+    <PlayerItem
+      key={player.id}
+      player={player}
+      assigned={assigned}
+      onDrag={handlePlayerDrag}
+    />
+  );
+})}
+  </div>
+
+  <h4>Assigned Players</h4>
+  <div className="position-summary">
+    {Object.values(Position).filter(p => p !== Position.ALL).map(position => {
+  const count = playerPositions.filter(pp => pp.position === position).length;
+  return (
+    <div key={position} className="position-group">
+      <Tag type="blue">{position}: {count}</Tag>
+    </div>
+  );
+})}
+  </div>
+</div>
     </div>
   );
 };

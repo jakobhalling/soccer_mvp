@@ -148,11 +148,15 @@ const Scoreboard: React.FC = () => {
             <Table {...getTableProps()}>
               <TableHead>
                 <TableRow>
-                  {headers.map((header) => (
-                    <TableHeader {...getHeaderProps({ header })}>
-                      {header.header}
-                    </TableHeader>
-                  ))}
+                  {headers.map((header) => {
+  const headerProps = getHeaderProps({ header });
+  const { key, ...rest } = headerProps;
+  return (
+    <TableHeader key={key} {...rest}>
+      {header.header}
+    </TableHeader>
+  );
+})}
                 </TableRow>
               </TableHead>
               <TableBody>
