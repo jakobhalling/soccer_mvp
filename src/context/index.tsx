@@ -5,6 +5,15 @@ import {
   loadFromLocalStorage 
 } from '../utils/localStorage';
 import { generateMockData } from '../utils/mockData';
+import { 
+  teamService, 
+  playerService, 
+  seasonService, 
+  matchService, 
+  playerPositionService, 
+  playerEventService, 
+  pointModelService 
+} from '../api/services';
 
 // Define context types
 interface TeamContextType {
@@ -90,12 +99,31 @@ export const TeamProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const setTeam = (team: Team) => {
+    // Call API service
+    teamService.createTeam({
+      name: team.name,
+      logo: team.logo
+    }).then(apiTeam => {
+      console.info('[API Response] Create Team:', apiTeam);
+    });
+    
+    // Update local state
     setTeamState(team);
     saveToLocalStorage(STORAGE_KEYS.TEAM, team);
   };
 
   const updateTeam = (updates: Partial<Team>) => {
     if (!team) return;
+    
+    // Call API service
+    teamService.updateTeam(team.id, {
+      name: updates.name,
+      logo: updates.logo
+    }).then(apiTeam => {
+      console.info('[API Response] Update Team:', apiTeam);
+    });
+    
+    // Update local state
     const updatedTeam = { ...team, ...updates, updatedAt: new Date() };
     setTeamState(updatedTeam);
     saveToLocalStorage(STORAGE_KEYS.TEAM, updatedTeam);
@@ -114,12 +142,31 @@ export const PlayersProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const addPlayer = (player: Player) => {
+    // Call API service
+    playerService.createPlayer({
+      teamId: player.teamId,
+      name: player.name,
+      number: player.number
+    }).then(apiPlayer => {
+      console.info('[API Response] Create Player:', apiPlayer);
+    });
+    
+    // Update local state
     const updatedPlayers = [...players, player];
     setPlayers(updatedPlayers);
     saveToLocalStorage(STORAGE_KEYS.PLAYERS, updatedPlayers);
   };
 
   const updatePlayer = (id: string, updates: Partial<Player>) => {
+    // Call API service
+    playerService.updatePlayer(id, {
+      name: updates.name,
+      number: updates.number
+    }).then(apiPlayer => {
+      console.info('[API Response] Update Player:', apiPlayer);
+    });
+    
+    // Update local state
     const updatedPlayers = players.map(player => 
       player.id === id ? { ...player, ...updates, updatedAt: new Date() } : player
     );
@@ -128,6 +175,12 @@ export const PlayersProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const deletePlayer = (id: string) => {
+    // Call API service
+    playerService.deletePlayer(id).then(success => {
+      console.info('[API Response] Delete Player:', success);
+    });
+    
+    // Update local state
     const updatedPlayers = players.filter(player => player.id !== id);
     setPlayers(updatedPlayers);
     saveToLocalStorage(STORAGE_KEYS.PLAYERS, updatedPlayers);
@@ -146,12 +199,33 @@ export const SeasonsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const addSeason = (season: Season) => {
+    // Call API service
+    seasonService.createSeason({
+      teamId: season.teamId,
+      name: season.name,
+      startDate: season.startDate?.toISOString() || new Date().toISOString(),
+      endDate: season.endDate?.toISOString() || new Date().toISOString()
+    }).then(apiSeason => {
+      console.info('[API Response] Create Season:', apiSeason);
+    });
+    
+    // Update local state
     const updatedSeasons = [...seasons, season];
     setSeasons(updatedSeasons);
     saveToLocalStorage(STORAGE_KEYS.SEASONS, updatedSeasons);
   };
 
   const updateSeason = (id: string, updates: Partial<Season>) => {
+    // Call API service
+    seasonService.updateSeason(id, {
+      name: updates.name,
+      startDate: updates.startDate?.toISOString(),
+      endDate: updates.endDate?.toISOString()
+    }).then(apiSeason => {
+      console.info('[API Response] Update Season:', apiSeason);
+    });
+    
+    // Update local state
     const updatedSeasons = seasons.map(season => 
       season.id === id ? { ...season, ...updates, updatedAt: new Date() } : season
     );
@@ -160,6 +234,12 @@ export const SeasonsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const deleteSeason = (id: string) => {
+    // Call API service
+    seasonService.deleteSeason(id).then(success => {
+      console.info('[API Response] Delete Season:', success);
+    });
+    
+    // Update local state
     const updatedSeasons = seasons.filter(season => season.id !== id);
     setSeasons(updatedSeasons);
     saveToLocalStorage(STORAGE_KEYS.SEASONS, updatedSeasons);
@@ -178,12 +258,41 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const addMatch = (match: Match) => {
+    // Call API service
+    matchService.createMatch({
+      teamId: match.teamId,
+      seasonId: match.seasonId,
+      opponent: match.opponent,
+      date: match.date.toISOString(),
+      location: match.location || '',
+      isHomeMatch: match.isHomeMatch,
+      formation: match.formation || 'F_442'
+    }).then(apiMatch => {
+      console.info('[API Response] Create Match:', apiMatch);
+    });
+    
+    // Update local state
     const updatedMatches = [...matches, match];
     setMatches(updatedMatches);
     saveToLocalStorage(STORAGE_KEYS.MATCHES, updatedMatches);
   };
 
   const updateMatch = (id: string, updates: Partial<Match>) => {
+    // Call API service
+    matchService.updateMatch(id, {
+      opponent: updates.opponent,
+      date: updates.date?.toISOString(),
+      location: updates.location,
+      isHomeMatch: updates.isHomeMatch,
+      formation: updates.formation,
+      homeScore: updates.homeScore,
+      awayScore: updates.awayScore,
+      isCompleted: updates.isCompleted
+    }).then(apiMatch => {
+      console.info('[API Response] Update Match:', apiMatch);
+    });
+    
+    // Update local state
     const updatedMatches = matches.map(match => 
       match.id === id ? { ...match, ...updates, updatedAt: new Date() } : match
     );
@@ -192,6 +301,12 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const deleteMatch = (id: string) => {
+    // Call API service
+    matchService.deleteMatch(id).then(success => {
+      console.info('[API Response] Delete Match:', success);
+    });
+    
+    // Update local state
     const updatedMatches = matches.filter(match => match.id !== id);
     setMatches(updatedMatches);
     saveToLocalStorage(STORAGE_KEYS.MATCHES, updatedMatches);
@@ -210,12 +325,30 @@ export const PlayerPositionsProvider: React.FC<{ children: React.ReactNode }> = 
   );
 
   const addPlayerPosition = (playerPosition: PlayerPosition) => {
+    // Call API service
+    playerPositionService.createPlayerPosition({
+      playerId: playerPosition.playerId,
+      matchId: playerPosition.matchId,
+      position: playerPosition.position
+    }).then(apiPlayerPosition => {
+      console.info('[API Response] Create Player Position:', apiPlayerPosition);
+    });
+    
+    // Update local state
     const updatedPositions = [...playerPositions, playerPosition];
     setPlayerPositions(updatedPositions);
     saveToLocalStorage(STORAGE_KEYS.PLAYER_POSITIONS, updatedPositions);
   };
 
   const updatePlayerPosition = (playerId: string, matchId: string, updates: Partial<PlayerPosition>) => {
+    // Call API service
+    playerPositionService.updatePlayerPosition(playerId, matchId, {
+      position: updates.position
+    }).then(apiPlayerPosition => {
+      console.info('[API Response] Update Player Position:', apiPlayerPosition);
+    });
+    
+    // Update local state
     const updatedPositions = playerPositions.map(pos => 
       (pos.playerId === playerId && pos.matchId === matchId) ? { ...pos, ...updates } : pos
     );
@@ -224,6 +357,12 @@ export const PlayerPositionsProvider: React.FC<{ children: React.ReactNode }> = 
   };
 
   const deletePlayerPosition = (playerId: string, matchId: string) => {
+    // Call API service
+    playerPositionService.deletePlayerPosition(playerId, matchId).then(success => {
+      console.info('[API Response] Delete Player Position:', success);
+    });
+    
+    // Update local state
     const updatedPositions = playerPositions.filter(
       pos => !(pos.playerId === playerId && pos.matchId === matchId)
     );
@@ -254,12 +393,31 @@ export const PlayerEventsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   );
 
   const addPlayerEvent = (playerEvent: PlayerEvent) => {
+    // Call API service
+    playerEventService.createPlayerEvent({
+      playerId: playerEvent.playerId,
+      matchId: playerEvent.matchId,
+      eventType: playerEvent.eventType,
+      count: playerEvent.count
+    }).then(apiPlayerEvent => {
+      console.info('[API Response] Create Player Event:', apiPlayerEvent);
+    });
+    
+    // Update local state
     const updatedEvents = [...playerEvents, playerEvent];
     setPlayerEvents(updatedEvents);
     saveToLocalStorage(STORAGE_KEYS.PLAYER_EVENTS, updatedEvents);
   };
 
   const updatePlayerEvent = (playerId: string, matchId: string, eventType: string, updates: Partial<PlayerEvent>) => {
+    // Call API service
+    playerEventService.updatePlayerEvent(playerId, matchId, eventType, {
+      count: updates.count
+    }).then(apiPlayerEvent => {
+      console.info('[API Response] Update Player Event:', apiPlayerEvent);
+    });
+    
+    // Update local state
     const updatedEvents = playerEvents.map(event => 
       (event.playerId === playerId && event.matchId === matchId && event.eventType === eventType) 
         ? { ...event, ...updates } 
@@ -270,6 +428,12 @@ export const PlayerEventsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   const deletePlayerEvent = (playerId: string, matchId: string, eventType: string) => {
+    // Call API service
+    playerEventService.deletePlayerEvent(playerId, matchId, eventType).then(success => {
+      console.info('[API Response] Delete Player Event:', success);
+    });
+    
+    // Update local state
     const updatedEvents = playerEvents.filter(
       event => !(event.playerId === playerId && event.matchId === matchId && event.eventType === eventType)
     );
@@ -300,6 +464,18 @@ export const PointModelProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   );
 
   const updatePointModel = (newPointModel: PointModelEntry[]) => {
+    // Call API service
+    pointModelService.updatePointModel({
+      entries: newPointModel.map(entry => ({
+        position: entry.position,
+        eventType: entry.eventType,
+        points: entry.points
+      }))
+    }).then(apiPointModel => {
+      console.info('[API Response] Update Point Model:', apiPointModel);
+    });
+    
+    // Update local state
     setPointModel(newPointModel);
     saveToLocalStorage(STORAGE_KEYS.POINT_MODEL, newPointModel);
   };
@@ -317,12 +493,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const login = (username: string, password: string) => {
-    // For prototype, just set authenticated to true without actual validation
+    // For prototype, just log the API call that would happen
+    console.info('[API Call] Login:', { username, password: '********' });
+    
+    // Update local state
     setIsAuthenticated(true);
     saveToLocalStorage(STORAGE_KEYS.AUTH, true);
   };
 
   const logout = () => {
+    // For prototype, just log the API call that would happen
+    console.info('[API Call] Logout');
+    
+    // Update local state
     setIsAuthenticated(false);
     saveToLocalStorage(STORAGE_KEYS.AUTH, false);
   };
