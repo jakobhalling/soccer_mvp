@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Tile, 
   Button,
@@ -141,7 +141,7 @@ const PlayerItem: React.FC<{
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
     })
-  }), [assigned]);
+  }), [assigned, player.id, onDrag]);
 
   return (
     <div
@@ -198,7 +198,7 @@ const PositionDropZone: React.FC<{
       console.info('canDrop called', { item, position, allowed });
       return allowed;
     }
-  }));
+  }), [position, assignedPlayers.length, onDrop]);
 
   return (
     <div
@@ -285,6 +285,7 @@ const FootballPitch: React.FC<FootballPitchProps> = ({
   onPlayerAssign
 }) => {
   const [draggedPlayerId, setDraggedPlayerId] = React.useState<string | null>(null);
+  const [forceUpdate, setForceUpdate] = React.useState<number>(0);
   
   // Get positions for the current formation
   const positions = formationPositions[formation];
@@ -315,8 +316,15 @@ const FootballPitch: React.FC<FootballPitchProps> = ({
       console.info(`Player dropped:`, { playerId: draggedPlayerId, position });
       onPlayerAssign(draggedPlayerId, position);
       setDraggedPlayerId(null);
+      // Force a re-render to update the UI
+      setForceUpdate(prev => prev + 1);
     }
   };
+
+  // Force re-render when playerPositions change
+  useEffect(() => {
+    setForceUpdate(prev => prev + 1);
+  }, [playerPositions]);
   
   return (
     <div className="football-pitch-container">
@@ -330,7 +338,7 @@ const FootballPitch: React.FC<FootballPitchProps> = ({
             
             return (
               <PositionDropZone
-                key={`${position}-${index}`}
+                key={`${position}-${index}-${forceUpdate}`}
                 position={position}
                 x={coord.x}
                 y={coord.y}
@@ -360,7 +368,7 @@ const FootballPitch: React.FC<FootballPitchProps> = ({
   const assigned = playerPositions.some(pp => pp.playerId === player.id);
   return (
     <PlayerItem
-      key={player.id}
+      key={`${player.id}-${assigned ? 'assigned' : 'unassigned'}-${forceUpdate}`}
       player={player}
       assigned={assigned}
       onDrag={handlePlayerDrag}
@@ -374,7 +382,7 @@ const FootballPitch: React.FC<FootballPitchProps> = ({
     {Object.values(Position).filter(p => p !== Position.ALL).map(position => {
   const count = playerPositions.filter(pp => pp.position === position).length;
   return (
-    <div key={position} className="position-group">
+    <div key={`${position}-${count}-${forceUpdate}`} className="position-group">
       <Tag type="blue">{position}: {count}</Tag>
     </div>
   );
