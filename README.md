@@ -26,6 +26,11 @@ This is a Soccer MVP points tracking web application built with React, TypeScrip
 ```
 soccer-mvp-app/
 ├── src/
+│   ├── api/            # API client and services
+│   │   ├── client.ts   # API client implementation
+│   │   ├── index.ts    # API exports
+│   │   ├── services.ts # Service wrappers for API
+│   │   └── types.ts    # API types and interfaces
 │   ├── components/      # Reusable UI components
 │   │   ├── admin/       # Admin-specific components
 │   │   ├── football/    # Football pitch visualization
@@ -95,6 +100,161 @@ The application uses React Context for state management with the following provi
 
 ## Data Persistence
 All data is stored in the browser's localStorage. The application includes utilities for saving and loading data from localStorage, with automatic initialization of mock data on first load.
+
+The application is also prepared for backend integration with a complete API layer that currently logs actions instead of making real HTTP requests.
+
+## Backend API Specification
+
+The frontend is designed to work with a RESTful backend API. The API structure is defined in the `src/api` directory and follows these conventions:
+
+### Base URL
+The API base URL is configured in `src/api/client.ts` and should be updated to point to your backend server:
+```typescript
+const API_BASE_URL = 'https://api.soccer-mvp.example.com';
+```
+
+### Authentication
+The API is designed to work with token-based authentication. When implementing the backend, you should:
+1. Create login/logout endpoints
+2. Return JWT tokens or similar authentication tokens
+3. Include the token in the Authorization header for all API requests
+
+### API Endpoints
+
+#### Team Endpoints
+- `GET /teams/:teamId` - Get team by ID
+- `POST /teams` - Create a new team
+- `PUT /teams/:teamId` - Update an existing team
+- `DELETE /teams/:teamId` - Delete a team
+
+#### Player Endpoints
+- `GET /teams/:teamId/players` - Get all players for a team
+- `GET /players/:playerId` - Get player by ID
+- `POST /players` - Create a new player
+- `PUT /players/:playerId` - Update an existing player
+- `DELETE /players/:playerId` - Delete a player
+
+#### Season Endpoints
+- `GET /teams/:teamId/seasons` - Get all seasons for a team
+- `GET /seasons/:seasonId` - Get season by ID
+- `POST /seasons` - Create a new season
+- `PUT /seasons/:seasonId` - Update an existing season
+- `DELETE /seasons/:seasonId` - Delete a season
+
+#### Match Endpoints
+- `GET /seasons/:seasonId/matches` - Get all matches for a season
+- `GET /matches/:matchId` - Get match by ID
+- `POST /matches` - Create a new match
+- `PUT /matches/:matchId` - Update an existing match
+- `DELETE /matches/:matchId` - Delete a match
+
+#### Player Position Endpoints
+- `GET /matches/:matchId/positions` - Get all player positions for a match
+- `POST /player-positions` - Create a new player position
+- `PUT /player-positions/:playerId/:matchId` - Update an existing player position
+- `DELETE /player-positions/:playerId/:matchId` - Delete a player position
+
+#### Player Event Endpoints
+- `GET /matches/:matchId/events` - Get all player events for a match
+- `POST /player-events` - Create a new player event
+- `PUT /player-events/:playerId/:matchId/:eventType` - Update an existing player event
+- `DELETE /player-events/:playerId/:matchId/:eventType` - Delete a player event
+
+#### Point Model Endpoints
+- `GET /point-model` - Get the point model
+- `PUT /point-model` - Update the point model
+
+### Request and Response Formats
+
+All API requests and responses use JSON format. The detailed type definitions can be found in `src/api/types.ts`.
+
+#### Example Request/Response
+
+**Create Player Request:**
+```json
+POST /players
+{
+  "teamId": "team-123",
+  "name": "John Doe",
+  "number": 10
+}
+```
+
+**Create Player Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "player-456",
+    "teamId": "team-123",
+    "name": "John Doe",
+    "number": 10,
+    "createdAt": "2025-05-28T10:30:00.000Z",
+    "updatedAt": "2025-05-28T10:30:00.000Z"
+  }
+}
+```
+
+**Error Response:**
+```json
+{
+  "success": false,
+  "error": "Player with this number already exists"
+}
+```
+
+### Integration with Frontend
+
+The frontend is already set up to work with this API structure. The integration is handled in the following files:
+
+1. `src/api/client.ts` - Contains the API client with methods for all endpoints
+2. `src/api/services.ts` - Contains service wrappers that handle API responses and errors
+3. `src/context/index.tsx` - Context providers that call the API services
+
+To connect the frontend to your backend:
+
+1. Update the `API_BASE_URL` in `src/api/client.ts`
+2. Modify the `apiRequest` function in `src/api/client.ts` to make real HTTP requests instead of logging
+3. Implement authentication token handling
+
+Example implementation of `apiRequest` with real HTTP requests:
+
+```typescript
+const apiRequest = async <T>(
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  endpoint: string,
+  data?: any
+): Promise<ApiResponse<T>> => {
+  try {
+    const token = localStorage.getItem('auth_token');
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    };
+    
+    const options: RequestInit = {
+      method,
+      headers,
+      credentials: 'include'
+    };
+    
+    if (data && (method === 'POST' || method === 'PUT')) {
+      options.body = JSON.stringify(data);
+    }
+    
+    const response = await fetch(endpoint, options);
+    const result = await response.json();
+    
+    return result;
+  } catch (error) {
+    console.error(`API Error (${method} ${endpoint}):`, error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
+```
 
 ## MVP Point Calculation
 Points are calculated based on:
